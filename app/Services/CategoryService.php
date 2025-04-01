@@ -9,19 +9,18 @@ use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ProductCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
+use App\Exceptions\NotFoundException;
+use App\Models\Category;
 
 class CategoryService implements CategoryServiceInterface
 {
-    protected CategoryRepositoryInterface $categoryRepository;
-
-    public function __construct(CategoryRepositoryInterface $categoryRepository)
-    {
-        $this->categoryRepository = $categoryRepository;
-    }
-
     public function getCategoryById(int $categoryId): JsonResponse
     {
-        $category = $this->categoryRepository->getCategoryById($categoryId);
+        $category = Category::with("products")->find($categoryId);
+
+        if (!$category) {
+            throw new NotFoundException("Kategori bulunamadı!", 404);
+        }
 
         return response()->json(new CategoryResource($category), 200);
     }
@@ -32,14 +31,14 @@ class CategoryService implements CategoryServiceInterface
             $categoryData['featured_image'] = $this->uploadImage($categoryData['featured_image']);
         }
 
-        $category = $this->categoryRepository->createCategory($categoryData);
+        $category = Category::create($categoryData);
 
         return response()->json(['message' => 'Kategori başarıyla oluşturuldu!', "category" => CategoryResource::make($category)], 201);
     }
 
     public function updateCategory(int $categoryId, array $categoryData): JsonResponse
     {
-        $category = $this->categoryRepository->getCategoryById($categoryId);
+        $category = Category::with("products")->find($categoryId);
 
         if (isset($categoryData['featured_image'])) {
 
@@ -48,18 +47,18 @@ class CategoryService implements CategoryServiceInterface
             $categoryData['featured_image'] = $this->uploadImage($categoryData['featured_image']);
         }
 
-        $category = $this->categoryRepository->updateCategory($category, $categoryData);
+        $category = $category->updateOrFail($categoryData);
 
         return response()->json(['message' => 'Kategori başarıyla güncellendi!', "category" => CategoryResource::make($category)], 200);
     }
 
     public function deleteCategory(int $categoryId): JsonResponse
     {
-        $category = $this->categoryRepository->getCategoryById($categoryId);
+        $category = Category::with("products")->find($categoryId);
 
         $category->featured_image && $this->deleteImage($category->featured_image);
 
-        $this->categoryRepository->deleteCategory($category);
+        $category->deleteOrFail();
 
         return response()->json(['message' => 'Kategori başarıyla silindi!'], 200);
     }
