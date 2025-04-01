@@ -9,39 +9,78 @@ use App\Http\Requests\Category\CategoryUpdateRequest;
 use App\Models\Category;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\JsonResponse;
+use App\Http\Resources\CategoryResource;
+use App\Exceptions\ImageUploadException;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
-    private CategoryServiceInterface $categoryService;
-
-    public function __construct(CategoryServiceInterface $categoryService)
-    {
-        $this->categoryService = $categoryService;
-    }
-
     public function show(Category $category): JsonResponse
     {
         Gate::authorize('view', $category);
 
-        return $this->categoryService->getCategoryById($category->id);
+        $category->load(['products']);
+
+        return response()->json(new CategoryResource($category), 200);
     }
 
     public function store(CategoryStoreRequest $request): JsonResponse
     {
-        return $this->categoryService->createCategory($request->validated());
+        $categoryData = $request->validated();
+
+        if ($request->hasFile('featured_image')) {
+            $categoryData['featured_image'] = $this->uploadImage($request->file('featured_image'));
+        }
+
+        $category = Category::create($categoryData);
+
+        return response()->json(['message' => 'Kategori başarıyla oluşturuldu!', "category" => CategoryResource::make($category)], 201);
     }
 
     public function update(CategoryUpdateRequest $request, Category $category): JsonResponse
     {
         Gate::authorize('update', $category);
 
-        return $this->categoryService->updateCategory($category->id,  $request->validated());
+        $category->load('products');
+
+        if ($request->hasFile('featured_image')) {
+            $categoryData['featured_image'] = $this->uploadImage($request->file('featured_image'));
+
+            $category->featured_image && $this->deleteImage($category->featured_image);
+
+            $categoryData['featured_image'] = $this->uploadImage($request->file('featured_image'));
+        }
+
+        $category = $category->updateOrFail($categoryData);
+
+        return response()->json(['message' => 'Kategori başarıyla güncellendi!', "category" => CategoryResource::make($category)], 200);
     }
 
     public function destroy(Category $category): JsonResponse
     {
         Gate::authorize('delete', $category);
 
-        return $this->categoryService->deleteCategory($category->id);
+        $category->featured_image && $this->deleteImage($category->featured_image);
+
+        $category->deleteOrFail();
+
+        return response()->json(['message' => 'Kategori başarıyla silindi!'], 200);
+    }
+
+    protected function uploadImage($image): string
+    {
+        $path = $image->store('featured_images/categories', 'public');
+
+        if (!$path) {
+            throw new ImageUploadException();
+        }
+
+        return Storage::url($path);
+    }
+
+    protected function deleteImage(string $imagePath): void
+    {
+        $path = str_replace('/storage/', '', $imagePath);
+        Storage::disk('public')->delete($path);
     }
 }
