@@ -5,10 +5,11 @@ namespace App\Services;
 use App\Contracts\Services\CategoryServiceInterface;
 use App\Contracts\Repositories\CategoryRepositoryInterface;
 use App\Exceptions\ImageUploadException;
+use Illuminate\Support\Facades\Storage;
+
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ProductCollection;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
 use App\Exceptions\NotFoundException;
 use App\Models\Category;
 
