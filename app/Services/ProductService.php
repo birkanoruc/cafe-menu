@@ -9,19 +9,20 @@ use App\Http\Resources\CategoryCollection;
 use App\Http\Resources\ProductResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Product;
 
 class ProductService implements ProductServiceInterface
 {
-    protected ProductRepositoryInterface $productRepository;
+    // protected ProductRepositoryInterface $productRepository;
 
-    public function __construct(ProductRepositoryInterface $productRepository)
-    {
-        $this->productRepository = $productRepository;
-    }
+    // public function __construct(ProductRepositoryInterface $productRepository)
+    // {
+    //     $this->productRepository = $productRepository;
+    // }
 
     public function getProductById(int $productId): JsonResponse
     {
-        $product = $this->productRepository->getProductById($productId);
+        $product = Product::with("categories")->find($productId);
 
         return response()->json(new ProductResource($product), 200);
     }
@@ -36,16 +37,16 @@ class ProductService implements ProductServiceInterface
 
         unset($productData['category_ids']);
 
-        $product = $this->productRepository->createProduct($productData);
+        $product = Product::create($productData);
 
-        $this->productRepository->syncCategories($product, $categoryIds);
+        $product->categories()->sync($categoryIds);
 
         return response()->json(['message' => 'Ürün başarıyla oluşturuldu!', "product" => new ProductResource($product->load("categories"))], 201);
     }
 
     public function updateProduct(int $productId, array $productData): JsonResponse
     {
-        $product = $this->productRepository->getProductById($productId);
+        $product = Product::with("categories")->find($productId);
 
         if (isset($productData['featured_image'])) {
 
@@ -58,22 +59,22 @@ class ProductService implements ProductServiceInterface
 
         unset($productData['category_ids']);
 
-        $product = $this->productRepository->updateProduct($product, $productData);
+        $product->update($productData);
 
-        $this->productRepository->syncCategories($product, $categoryIds);
+        $product->categories()->sync($categoryIds);
 
         return response()->json(['message' => 'Ürün başarıyla güncellendi!', "product" => new ProductResource($product->load("categories"))], 200);
     }
 
     public function deleteProduct(int $productId): JsonResponse
     {
-        $product = $this->productRepository->getProductById($productId);
+        $product = Product::with("categories")->find($productId);
 
         $product->featured_image && $this->deleteImage($product->featured_image);
 
-        $this->productRepository->syncCategories($product, []);
+        $product->categories()->sync([]);
 
-        $this->productRepository->deleteProduct($product);
+        $product->delete();
 
         return response()->json(['message' => 'Ürün başarıyla silindi!'], 200);
     }
