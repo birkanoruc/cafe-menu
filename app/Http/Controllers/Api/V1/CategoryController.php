@@ -41,7 +41,7 @@ class CategoryController extends Controller
     {
         Gate::authorize('update', $category);
 
-        $category->load('products');
+        $categoryData = $request->validated();
 
         if ($request->hasFile('featured_image')) {
             $categoryData['featured_image'] = $this->uploadImage($request->file('featured_image'));
@@ -51,9 +51,9 @@ class CategoryController extends Controller
             $categoryData['featured_image'] = $this->uploadImage($request->file('featured_image'));
         }
 
-        $category = $category->updateOrFail($categoryData);
+        $category->update($categoryData);
 
-        return response()->json(['message' => 'Kategori başarıyla güncellendi!', "category" => CategoryResource::make($category)], 200);
+        return response()->json(['message' => 'Kategori başarıyla güncellendi!', "category" => CategoryResource::make($category->load('products'))], 200);
     }
 
     public function destroy(Category $category): JsonResponse
@@ -62,7 +62,7 @@ class CategoryController extends Controller
 
         $category->featured_image && $this->deleteImage($category->featured_image);
 
-        $category->deleteOrFail();
+        $category->delete();
 
         return response()->json(['message' => 'Kategori başarıyla silindi!'], 200);
     }
