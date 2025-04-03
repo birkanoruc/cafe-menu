@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Contracts\Services\LogInterface;
-use App\Exceptions\CustomException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Throwable;

@@ -4,12 +4,9 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 
-use App\Contracts\Services\ProductServiceInterface;
 use App\Http\Requests\Product\ProductStoreRequest;
 use App\Http\Requests\Product\ProductUpdateRequest;
-use App\Models\Category;
 use App\Models\Product;
-use App\Models\Venue;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Resources\ProductResource;
@@ -18,13 +15,6 @@ use App\Exceptions\ImageUploadException;
 
 class ProductController extends Controller
 {
-    // private ProductServiceInterface $productService;
-
-    // public function __construct(ProductServiceInterface $productService)
-    // {
-    //     $this->productService = $productService;
-    // }
-
     public function show(Product $product): JsonResponse
     {
         Gate::authorize('view', $product);

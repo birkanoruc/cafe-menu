@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 
-use App\Contracts\Services\VenueServiceInterface;
 use App\Http\Requests\Venue\VenueFilterRequest;
 use App\Http\Requests\Venue\VenueStoreRequest;
 use App\Http\Requests\Venue\VenueUpdateRequest;
