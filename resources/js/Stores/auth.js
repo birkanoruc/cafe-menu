@@ -123,15 +123,13 @@ export const useAuthStore = defineStore("auth", {
 
                 await this.fetchUser();
 
-                this.setMessage(data.message || "Oturum açma işlemi başarılı!");
+                this.setMessage(data.message);
 
                 this.setSuccess(true);
             } catch (error) {
                 const errorData = error.response?.data || {};
 
-                this.setMessage(
-                    errorData.message || "Beklenmeyen bir hata oluştu."
-                );
+                this.setMessage(errorData.message);
 
                 this.setErrors(errorData.errors);
 
@@ -250,12 +248,10 @@ export const useAuthStore = defineStore("auth", {
 
         setUser(user) {
             this.user = user;
-            console.log("Kullanıcı verileri ayarlandı.");
         },
 
         clearUser() {
             this.user = {};
-            console.log("Kullanıcı verileri silindi.");
             this.clearToken();
         },
 
@@ -263,40 +259,33 @@ export const useAuthStore = defineStore("auth", {
             this.token = token;
             localStorage.setItem("token", token);
             api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-            console.log("Jeton verisi ayarlandı.");
         },
 
         clearToken() {
             this.token = null;
             localStorage.removeItem("token");
             delete api.defaults.headers.common["Authorization"];
-            console.log("Jeton verisi silindi.");
         },
 
         setErrors(errors) {
             this.errors = errors || {};
-            console.log("Hata verileri ayarlandı.");
         },
 
         clearErrors() {
             this.errors = {};
-            console.log("Hata verileri temizlendi.");
             this.clearMessage();
         },
 
         setMessage(message) {
             this.message = message;
-            console.log("Mesaj verisi ayarlandı.");
         },
 
         clearMessage() {
             this.message = null;
-            console.log("Mesaj verisi temizlendi.");
         },
 
         setSuccess(success) {
             this.success = success;
-            console.log("Başarı durumu ayarlandı.");
         },
     },
 });

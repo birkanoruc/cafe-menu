@@ -3,13 +3,11 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Contracts\Services\AuthServiceInterface;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Auth\UpdateInformationRequest;
-use App\Http\Requests\Auth\UpdatePasswordRequest;
 use App\Http\Requests\Auth\VerifyEmailRequest;
 use App\Models\User;
 use Carbon\Carbon;
@@ -24,6 +22,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Exceptions\NotFoundException;
+use App\Contracts\Services\AuthServiceInterface;
+use App\Http\Requests\Auth\UpdatePasswordRequest;
 
 class AuthController extends Controller
 {

@@ -1,8 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "@/Stores/auth";
 import Dashboard from "@/Pages/Dashboard.vue";
-import Categories from "@/Pages/Categories.vue";
-import Products from "@/Pages/Products.vue";
 import Venues from "@/Pages/Venues.vue";
 import Profile from "@/Pages/Auth/Profile.vue";
 import Login from "@/Pages/Auth/Login.vue";
@@ -52,18 +50,6 @@ const routes = [
                 component: Venues,
                 meta: { requiresAuth: true },
             },
-            // {
-            //     path: "categories",
-            //     name: "categories",
-            //     component: Categories,
-            //     meta: { requiresAuth: true },
-            // },
-            // {
-            //     path: "products",
-            //     name: "products",
-            //     component: Products,
-            //     meta: { requiresAuth: true },
-            // },
             {
                 path: "profile",
                 name: "profile",

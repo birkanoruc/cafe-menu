@@ -17,16 +17,16 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
-api.interceptors.response.use(
-    (response) => {
-        return response;
-    },
-    async (error) => {
-        if (error.response.status === 401) {
-            router.push({ name: "login" });
-        }
-        return Promise.reject(error);
-    }
-);
+// api.interceptors.response.use(
+//     (response) => {
+//         return response;
+//     },
+//     async (error) => {
+//         if (error.response.status === 401) {
+//             router.push({ name: "login" });
+//         }
+//         return Promise.reject(error);
+//     }
+// );
 
 export default api;

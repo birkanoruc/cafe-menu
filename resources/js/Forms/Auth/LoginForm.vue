@@ -6,7 +6,7 @@
             >
             <div class="mt-2">
                 <input
-                    v-model="email"
+                    v-model="credentials.email"
                     type="email"
                     name="email"
                     id="email"
@@ -39,7 +39,7 @@
             </div>
             <div class="mt-2">
                 <input
-                    v-model="password"
+                    v-model="credentials.password"
                     type="password"
                     name="password"
                     id="password"
@@ -66,51 +66,37 @@
     </form>
 </template>
 
-<script>
-import { useAuthStore } from "@/stores/auth";
-import { ref } from "vue"; // Reactive data için ref kullanıyoruz
-import { useToast } from "vue-toastification";
+<script setup>
+import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+import { useToast } from "vue-toastification";
 
-export default {
-    setup() {
-        const authStore = useAuthStore();
-        const toast = useToast();
-        const router = useRouter(); // Vue Router'ı burada kullanıyoruz
+const authStore = useAuthStore();
+const toast = useToast();
+const router = useRouter();
 
-        const email = ref("");
-        const password = ref("");
-        const errors = ref({});
+const errors = ref({});
+const credentials = ref({
+    email: "",
+    password: "",
+});
 
-        const login = async () => {
-            const credentials = {
-                email: email.value,
-                password: password.value,
-            };
+const login = async () => {
+    await authStore.login(credentials.value);
 
-            await authStore.login(credentials);
+    if (authStore.success) {
+        errors.value = {};
 
-            if (authStore.success) {
-                errors.value = {};
+        toast.success(authStore.message);
 
-                toast.success(authStore.message);
+        setTimeout(() => {
+            router.push({ name: "dashboard" }); // Yönlendirme işlemi
+        }, 2000);
+    } else {
+        errors.value = authStore.errors;
 
-                setTimeout(() => {
-                    router.push({ name: "dashboard" }); // Yönlendirme işlemi
-                }, 2000);
-            } else {
-                errors.value = authStore.errors;
-
-                toast.error(authStore.message);
-            }
-        };
-
-        return {
-            email,
-            password,
-            errors,
-            login,
-        };
-    },
+        toast.error(authStore.message);
+    }
 };
 </script>

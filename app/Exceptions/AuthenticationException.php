@@ -6,7 +6,7 @@ use Exception;
 
 class AuthenticationException extends Exception
 {
-    public function __construct($message = "Kimlik doğrulama hatası.", $code = 401)
+    public function __construct($message = "Kimlik doğrulama bilgileri hatalı.", $code = 401)
     {
         parent::__construct($message, $code);
     }
